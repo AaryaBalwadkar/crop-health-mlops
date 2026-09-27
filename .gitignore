@@ -7,3 +7,5 @@ frontend/dist/
 .env
 *.pyc
 .DS_Store
+# Demo source doc stays local-only; README uses exported PNGs in docs/screenshots/.
+*.docx
