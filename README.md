@@ -67,15 +67,18 @@ The model file is never committed. It is injected at runtime via a mounted volum
 
 ### Option A — Local API + UI
 
+From a clean clone, set up the backend environment, install dependencies, and run the API from the repository root or backend directory.
+
 ```bash
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy ..\..\AgriCNXEdge\app\src\main\assets\adc_student_full.onnx models\adc_student_full.onnx
 python -m pytest -q
 python -m uvicorn app.main:app --reload --port 8000
 ```
+
+If you also want the frontend dev server:
 
 ```bash
 cd frontend
@@ -83,13 +86,15 @@ npm install
 npm run dev
 ```
 
-Open the Vite URL printed in the terminal.
+Open the Vite URL printed in the terminal. The model artifact is optional for health checks and status routes; prediction requests require a valid ONNX model under `backend/models/`.
 
 ### Option B — Docker monitoring stack
 
-Requires Docker Desktop running.
+Requires Docker Desktop or Docker Engine running.
 
 ```bash
+git clone <repo>
+cd crop-health-mlops-main
 docker compose up --build
 ```
 
@@ -101,7 +106,17 @@ docker compose up --build
 | Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 (admin / admin) |
 
-### Option C — Kubernetes (kind)
+### Option C — Traffic generation
+
+Generate a realistic synthetic workload against the running API:
+
+```bash
+python traffic_generator.py --url http://localhost:8000 --count 100 --delay 0.2
+```
+
+This exercises health checks, model status, valid prediction uploads, and invalid image rejections while printing the request number, endpoint, and HTTP status.
+
+### Option D — Kubernetes (kind)
 
 ```bash
 docker build -t agricnxedge-web:latest .
@@ -111,7 +126,7 @@ kubectl apply -f k8s/namespace.yaml -f k8s/api-deployment.yaml -f k8s/api-servic
 kubectl -n agricnxedge port-forward svc/agricnxedge-api 8000:80
 ```
 
-### Option D — GCP test-and-drop VM
+### Option E — GCP test-and-drop VM
 
 Free-tier combo only: `us-central1`, `e2-micro`, 30GB `pd-standard`.
 
