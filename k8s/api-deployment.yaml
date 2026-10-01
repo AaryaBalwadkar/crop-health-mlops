@@ -6,8 +6,13 @@ metadata:
   labels:
     app: agricnxedge-api
 spec:
-  # kind single-node demo: 1 replica saves RAM. Scale to 2+ on real clusters.
-  replicas: 1
+  # Zero-downtime rolling update demonstration (2 replicas ensures availability during rollout)
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: agricnxedge-api
